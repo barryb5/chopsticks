@@ -41,7 +41,7 @@ Node::~Node() {
 
 std::string Node::toString() {
     std::ostringstream oss;
-    oss << "\nP2 Right P2 Left\n    " << p2r << "         " << p2l << "\nP1 Right P1 Left\n    " << p1r << "         " << p1l;
+    oss << "\nP2 Right P2 Left\n   " << p2r << "         " << p2l << "\n\n   " << p1r << "         " << p1l << "\nP1 Right P1 Left";
     return oss.str();
 }
 
@@ -59,12 +59,13 @@ void Node::fillBranches() {
     if (player == 1) {
         if (p1r == p1l) {
             // Each hand is the same and can only add to 1 or the other
-            
+
             // Add possibility of p1 right hand hits p2 right hand
-            branches.push_front(new Node((int)p1r, (int)p1l, p2r + p1r, (int)p2l, 2, this));
-            
-            // Add possibility of p1 right hand hist p2 left hand
-            branches.push_front(new Node((int)p1r, (int)p1l, (int)p2r, p2l + p1r, 2, this));
+            branches.push_front(new Node((int)p1r, (int)p1l, p2r + p1r, (int)p2l, 2, this));           
+            if (p2r != p2l) {
+                // Add possibility of p1 right hand hist p2 left hand
+                branches.push_front(new Node((int)p1r, (int)p1l, (int)p2r, p2l + p1r, 2, this));
+            }
 
             // Add possibility of combining
             if (p1r == 1) {
@@ -79,6 +80,22 @@ void Node::fillBranches() {
                 branches.push_front(new Node(p1r + p1r, 0, (int)p2r, (int)p2l, 2, this));
             }
             
+        } else {
+            // Add possibility of p1 right hand hits p2 right hand
+            branches.push_front(new Node((int)p1r, (int)p1l, p2r + p1r, (int)p2l, 2, this));
+            branches.push_front(new Node((int)p1r, (int)p1l, p2r + p1l, (int)p2l, 2, this));
+            if (p2r != p2l) {
+                // Add possibility of p1 right hand hist p2 left hand
+                branches.push_front(new Node((int)p1r, (int)p1l, (int)p2r, p2l + p1r, 2, this));
+                branches.push_front(new Node((int)p1r, (int)p1l, (int)p2r, p2l + p1l, 2, this));
+            }
+
+            // Add possibility of combining
+            branches.push_front(new Node(p1r + p1l, 0, (int)p2r, (int)p2l, 2, this));
+            if (p1r + 1 != p1l && p1l + 1 != p1r) {
+                // Can add both then subtract 1 without doing something I consider stupid
+                branches.push_front(new Node((p1r + p1l) - 1, 1, (int)p2r, (int)p2l, 2, this));
+            }
         }
     }
 
