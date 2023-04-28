@@ -5,6 +5,5 @@
 
 int main() {
     Node node = *(new Node());
-    std::cout << node.toString() << std::endl;
     return 0;
 }

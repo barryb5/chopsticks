@@ -8,7 +8,7 @@
 class Node {
 public:
  Node();
- Node(int, int, int, int, int, Node*);
+ Node(int, int, int, int, int, Node*, int);
  Node(const Node&);
  
  ~Node();
@@ -23,6 +23,7 @@ private:
  int p2l;
 
  int player;
+ int killNum;
 
  Node* parent;
  std::list <Node*> branches;
