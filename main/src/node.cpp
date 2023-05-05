@@ -108,6 +108,24 @@ Node* Node::searchForCopy(Node* node, Node& checkNode) {
 }
 
 void Node::fillBranches() {
+
+    Node* mightExist = searchForCopy(this, *this);
+    if (nullptr != mightExist) {
+        // This node already exists in the tree, so we can just point to that
+        std::list<Node*>::iterator iterator = parent->branches.begin();
+        for (size_t i = 0; i < parent->branches.size(); i++) {
+            if (this == *iterator) {
+                *iterator = mightExist;
+
+                // Idk if this is allowed
+                delete this;
+
+                return;
+            }
+            advance(iterator, 1);
+        }
+    }
+
     if (player == 1) {
         if (p1r == p1l) {
             // Each hand is the same and can only add to 1 or the other
