@@ -15,6 +15,9 @@ public:
  
  std::string toString();
  int winner();
+ Node* searchForCopy(Node*, Node&);
+ Node* searchFromTop(Node*, Node&);
+ bool checkMatching(Node&);
 
 private:
  int p1r;

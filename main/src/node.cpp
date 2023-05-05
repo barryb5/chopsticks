@@ -68,6 +68,45 @@ int Node::winner() {
     }
 }
 
+bool Node::checkMatching(Node& node) {
+    if (node.p1r == p1r &&
+        node.p1l == p1l &&
+        node.p2r == p2r &&
+        node.p2l == p2l &&
+        node.player == player) {
+        
+        return true;
+    }
+    return false;
+}
+
+Node* Node::searchFromTop(Node* node, Node& checkNode) {
+    if (node->checkMatching(checkNode)) {
+        // If node exists, return pointer to node
+        return node;
+    }
+
+    // Recursively search from top down in normal search
+    std::list<Node*>::iterator iterator = node->branches.begin();
+    for (size_t i = 0; i < node->branches.size(); i++) {
+        searchFromTop(*iterator, checkNode);
+        advance(iterator, 1);
+    }
+
+    // Existing copy of node doesn't exist, so return nullptr
+    return nullptr;
+}
+
+Node* Node::searchForCopy(Node* node, Node& checkNode) {
+    if (nullptr == node->parent) {
+        // At the top so search from top down for node
+        return searchFromTop(node, checkNode);
+    } else {
+        // Not at the top yet, keep climbing to main 1 1 1 1 p1 root
+        return searchForCopy(parent, checkNode);
+    }
+}
+
 void Node::fillBranches() {
     if (player == 1) {
         if (p1r == p1l) {
