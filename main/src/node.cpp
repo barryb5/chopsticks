@@ -80,7 +80,7 @@ bool Node::checkMatching(Node& node) {
     return false;
 }
 
-Node* Node::searchFromTop(Node* node, Node checkNode) {
+Node* Node::searchFromTop(Node* node, Node& checkNode) {
     if (node->checkMatching(checkNode)) {
         // If node exists, return pointer to node
 
@@ -117,7 +117,13 @@ Node* Node::searchForCopy(Node* node, Node& checkNode) {
 }
 
 // Use checkbeforeAdding instead
+void Node::autoAdd(int p1r, int p1l, int p2r, int p2l, int player, Node* parent, int killNum) {
+    Node attemptInsertNode = *(new Node(p1r, p1l, p2r, p2l, player, parent, killNum));
 
+    branches.push_front(searchForCopy(this, attemptInsertNode));
+
+    return;
+}
 
 void Node::fillBranches() {
 
@@ -145,41 +151,41 @@ void Node::fillBranches() {
 
             // Add possibility of p1 right hand hits p2 right hand
             if (p2r != 0) {
-                branches.push_front(searchForCopy(this, new Node((int)p1r, (int)p1l, p2r + p1r, (int)p2l, 2, this, killNum + 1)));
+                autoAdd((int)p1r, (int)p1l, p2r + p1r, (int)p2l, 2, this, killNum + 1);
             }
 
             if (p2r != p2l && p2l != 0) {
                 // Add possibility of p1 right hand hist p2 left hand
-                branches.push_front(searchForCopy(this, new Node((int)p1r, (int)p1l, (int)p2r, p2l + p1r, 2, this, killNum + 1)));
+                autoAdd((int)p1r, (int)p1l, (int)p2r, p2l + p1r, 2, this, killNum + 1);
             }
 
             // Add possibility of combining
             if (p1r == 1) {
-                branches.push_front(searchForCopy(this, new Node(2, 0, (int)p2r, (int)p2l, 2, this, killNum + 1)));
+                autoAdd(2, 0, (int)p2r, (int)p2l, 2, this, killNum + 1);
             } else if (p1r == 2) {
-                branches.push_front(searchForCopy(this, new Node(4, 0, (int)p2r, (int)p2l, 2, this, killNum + 1)));
-                branches.push_front(searchForCopy(this, new Node(3, 1, (int)p2r, (int)p2l, 2, this, killNum + 1));
+                autoAdd(4, 0, (int)p2r, (int)p2l, 2, this, killNum + 1);
+                autoAdd(3, 1, (int)p2r, (int)p2l, 2, this, killNum + 1);
             } else if (p1r == 3) {
-                branches.push_front(searchForCopy(this, new Node(4, 2, (int)p2r, (int)p2l, 2, this, killNum + 1)));
+                autoAdd(4, 2, (int)p2r, (int)p2l, 2, this, killNum + 1);
             } else {
-                branches.push_front(searchForCopy(this, new Node(p1r + p1r, 0, (int)p2r, (int)p2l, 2, this, killNum + 1)));
+                autoAdd(p1r + p1r, 0, (int)p2r, (int)p2l, 2, this, killNum + 1);
             }
         } else {
 
             // Add possibility of p1 right hand hits p2 right hand
-            branches.push_front(searchForCopy(this, new Node((int)p1r, (int)p1l, p2r + p1r, (int)p2l, 2, this, killNum + 1)));
-            branches.push_front(searchForCopy(this, new Node((int)p1r, (int)p1l, p2r + p1l, (int)p2l, 2, this, killNum + 1)));
+            autoAdd((int)p1r, (int)p1l, p2r + p1r, (int)p2l, 2, this, killNum + 1);
+            autoAdd((int)p1r, (int)p1l, p2r + p1l, (int)p2l, 2, this, killNum + 1);
             if (p2r != p2l) {
                 // Add possibility of p1 right hand hist p2 left hand
-                branches.push_front(searchForCopy(this, new Node((int)p1r, (int)p1l, (int)p2r, p2l + p1r, 2, this, killNum + 1)));
-                branches.push_front(searchForCopy(this, new Node((int)p1r, (int)p1l, (int)p2r, p2l + p1l, 2, this, killNum + 1)));
+                autoAdd((int)p1r, (int)p1l, (int)p2r, p2l + p1r, 2, this, killNum + 1);
+                autoAdd((int)p1r, (int)p1l, (int)p2r, p2l + p1l, 2, this, killNum + 1);
             }
 
             // Add possibility of combining
-            branches.push_front(searchForCopy(this, new Node(p1r + p1l, 0, (int)p2r, (int)p2l, 2, this, killNum + 1)));
+            autoAdd(p1r + p1l, 0, (int)p2r, (int)p2l, 2, this, killNum + 1);
             if (p1r + 1 != p1l && p1l + 1 != p1r) {
                 // Can add both then subtract 1 without doing something I consider stupid
-                branches.push_front(searchForCopy(this, new Node((p1r + p1l) - 1, 1, (int)p2r, (int)p2l, 2, this, killNum + 1)));
+                autoAdd((p1r + p1l) - 1, 1, (int)p2r, (int)p2l, 2, this, killNum + 1);
             }
 
         }
@@ -189,43 +195,43 @@ void Node::fillBranches() {
 
             // Add possibility of p1 right hand hits p2 right hand
             if (p1r != 0) {
-                branches.push_front(searchForCopy(this, new Node((int)p1r, (int)p1l, p2r + p1r, (int)p2l, 1, this, killNum + 1)));
+                autoAdd((int)p1r, (int)p1l, p2r + p1r, (int)p2l, 1, this, killNum + 1);
             }
 
             if (p1r != p1l && p1l != 0) {
                 // Add possibility of p1 right hand hist p2 left hand
-                branches.push_front(searchForCopy(this, new Node((int)p1r, (int)p1l, (int)p2r, p2l + p1r, 1, this, killNum + 1)));
+                autoAdd((int)p1r, (int)p1l, (int)p2r, p2l + p1r, 1, this, killNum + 1);
             }
 
             // Add possibility of combining
             if (p1r == 1) {
-                branches.push_front(searchForCopy(this, new Node(2, 0, (int)p2r, (int)p2l, 1, this, killNum + 1)));
+                autoAdd(2, 0, (int)p2r, (int)p2l, 1, this, killNum + 1);
             } else if (p1r == 2) {
-                branches.push_front(searchForCopy(this, new Node(4, 0, (int)p2r, (int)p2l, 1, this, killNum + 1)));
-                branches.push_front(searchForCopy(this, new Node(3, 1, (int)p2r, (int)p2l, 1, this, killNum + 1)));
+                autoAdd(4, 0, (int)p2r, (int)p2l, 1, this, killNum + 1);
+                autoAdd(3, 1, (int)p2r, (int)p2l, 1, this, killNum + 1);
             } else if (p1r == 3) {
-                branches.push_front(searchForCopy(this, new Node(4, 2, (int)p2r, (int)p2l, 1, this, killNum + 1)));
+                autoAdd(4, 2, (int)p2r, (int)p2l, 1, this, killNum + 1);
             } else {
-                branches.push_front(searchForCopy(this, new Node(p1r + p1r, 0, (int)p2r, (int)p2l, 1, this, killNum + 1)));
+                autoAdd(p1r + p1r, 0, (int)p2r, (int)p2l, 1, this, killNum + 1);
             }
         } else {
             // Add possibility of p2 hand hits p1 right hand
             if (p1r != 0) {
-                branches.push_front(searchForCopy(this, new Node((int)p2r + p1r, (int)p1l, (int)p2r, (int)p2l, 1, this, killNum + 1)));
-                branches.push_front(searchForCopy(this, new Node((int)p2l + p1r, (int)p1l, (int)p2r, (int)p2l, 1, this, killNum + 1)));
+                autoAdd((int)p2r + p1r, (int)p1l, (int)p2r, (int)p2l, 1, this, killNum + 1);
+                autoAdd((int)p2l + p1r, (int)p1l, (int)p2r, (int)p2l, 1, this, killNum + 1);
             }
 
             if (p1r != p1l && p1r != 0) {
                 // Add possibility of p2 hand hist p1 left hand
-                branches.push_front(searchForCopy(this, new Node((int)p1r, (int)p2r + p1l, (int)p2r, (int)p2l, 1, this, killNum + 1)));
-                branches.push_front(searchForCopy(this, new Node((int)p1r, (int)p2l + p1l, (int)p2r, (int)p2l, 1, this, killNum + 1)));
+                autoAdd((int)p1r, (int)p2r + p1l, (int)p2r, (int)p2l, 1, this, killNum + 1);
+                autoAdd((int)p1r, (int)p2l + p1l, (int)p2r, (int)p2l, 1, this, killNum + 1);
             }
 
             // Add possibility of combining
-            branches.push_front(searchForCopy(this, new Node(p1r, p1l, p2r + p2l, 0, 2, this, killNum + 1)));
+            autoAdd(p1r, p1l, p2r + p2l, 0, 2, this, killNum + 1);
             if (p1r + 1 != p1l && p1l + 1 != p1r) {
                 // Can add both then subtract 1 without doing something I consider stupid
-                branches.push_front(searchForCopy(this, new Node((int)p1r, (int)p1l, (p2r + p2l) - 1, 1, 1, this, killNum + 1)));
+                autoAdd((int)p1r, (int)p1l, (p2r + p2l) - 1, 1, 1, this, killNum + 1);
             }
         }
     }

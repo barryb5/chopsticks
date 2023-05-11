@@ -18,6 +18,7 @@ public:
  Node* searchForCopy(Node*, Node&);
  Node* searchFromTop(Node*, Node&);
  bool checkMatching(Node&);
+ void autoAdd(int, int, int, int, int, Node*, int);
 
 private:
  int p1r;
