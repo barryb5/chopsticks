@@ -1,38 +1,44 @@
-#ifndef NODE_H
-
-#define NODE_H
+#pragma once 
 
 #include <iostream>
+#include <vector>
 #include <list>
+#include <map>
 
 class Node {
+
 public:
- Node();
- Node(int, int, int, int, int, Node*, int);
- Node(const Node&);
+    Node();
+//    Node(const Node&);
+    Node(const std::vector<int>& hands, int player, Node* parent, int kill_num);
  
- ~Node();
+//    ~Node();
  
- std::string toString();
- int winner();
- Node* searchForCopy(Node*, Node&);
- Node* searchFromTop(Node*, Node&);
- bool checkMatching(Node&);
- void autoAdd(int, int, int, int, int, Node*, int);
+    void dump(std::ostream& os) const;
+
+    // int winner();
+    // Node* searchForCopy(Node*, Node&);
+    // Node* searchFromTop(Node*, Node&);
+
+    bool checkMatching(const Node&) const;
+    void autoAdd(int, int, int, int, int, Node*, int);
+
+    void tester();
+
 
 private:
- int p1r;
- int p1l;
- int p2r;
- int p2l;
+    int player_;
+    int kill_num_;
 
- int player;
- int killNum;
+    Node* parent_;
+    std::vector<int> hands_; 
+    std::list <Node> branches_;
 
- Node* parent;
- std::list <Node*> branches;
+    // void fillBranches();
 
- void fillBranches();
+    void genScenarios();
+    void combineHands();
+
+public:
+    static const std::multimap<int, std::vector<int> > s_combo_lookup;
 };
-
-#endif

@@ -4,6 +4,6 @@
 #include "include/node.h"
 
 int main() {
-    Node node = *(new Node());
+    Node node;
     return 0;
 }
