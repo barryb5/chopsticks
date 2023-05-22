@@ -92,9 +92,8 @@ void Node::tester() {
 
 void Node::combineHands() {
     int ix = (1 == player_) ? 0 : 2;
-    std::vector<int>& hands = hands_;
+    std::vector<int> hands = hands_;
 
-    std::cout << "This: " << this << std::endl;
 
     // combine
     if (hands_[ix+0] + hands_[ix+1] < 7) {
@@ -104,13 +103,9 @@ void Node::combineHands() {
         for (auto i = pair_iter.first; i != pair_iter.second; ++i) {
 
             std::cout << i->first << ": {"  << i->second[0] << ", " << i->second[1] << "}" << std::endl;
-            std::cout << hands[ix+0] << " " << hands[ix+1] << std::endl;
             // std::cout << "Parent: " << parent_ << "\n" << std::endl;
             if (i->second[0] != hands_[ix+0] && i->second[1] != hands_[ix+1]) {
-                std::cout << hands_[ix+0] << std::endl;
                 hands[ix+0] = i->second[0];
-                std::cout << "changed" << std::endl;
-                std::cout << hands_[ix+0] << std::endl;
                 hands[ix+1] = i->second[1];
 
                 branches_.push_back(std::move(Node(hands, (player_+1) % 2, this, kill_num_+1)));

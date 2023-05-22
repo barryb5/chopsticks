@@ -33,6 +33,6 @@ include_directories (/usr/local/include)
 link_directories (/usr/lib)
 link_directories (/usr/local/lib)
 
-add_executable(main
+add_executable(chopsticks
     main/main.cpp
     main/src/node.cpp)
