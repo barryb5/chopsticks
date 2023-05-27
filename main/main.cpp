@@ -5,5 +5,6 @@
 
 int main() {
     Node node;
+    node.printWinStats();
     return 0;
 }

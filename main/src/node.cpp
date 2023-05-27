@@ -19,11 +19,18 @@ const std::multimap<int, std::vector<int>> Node::s_combo_lookup {
 
   {6, {4, 2}}, 
   {6, {3, 3}}, 
-}; 
+};
+
+static std::vector<int> win_stats {
+    0,
+    0
+};
 
 
 Node::Node()
 : hands_ {1, 1, 1, 1 }
+, player_(1)
+, kill_num_(0)
 {
     parent_ = nullptr;
     dump(std::cout);
@@ -51,9 +58,21 @@ Node::Node(const std::vector<int>& hands, int player, Node* parent, int kill_num
 , player_(player)
 , parent_(parent)
 , kill_num_(kill_num) {
+
+
+    // for (std::vector<int>::iterator it = hands_.begin(); it != hands_.end(); ++it)
+    //     *it = *it % 5;
+    
+    for (auto& hand : hands_) {
+        hand = hand % 5;
+    }
+
     dump(std::cout);
-    if (kill_num_ < 3) {
-         genScenarios();
+
+    if (kill_num_ < 10) {
+        genScenarios();
+    } else {
+        // exit(0);
     }
 }
 
@@ -68,25 +87,37 @@ Node::Node(const std::vector<int>& hands, int player, Node* parent, int kill_num
 
 void Node::dump(std::ostream& os) const {
     // os << "This: " << this;
-    os << "\nplayer_: " << player_ << "\tlvl: "<< kill_num_ << "\nP2 Right P2 Left\n   " << hands_[2] << "         " << hands_[3] << "\n\n   " << hands_[0] << "         " << hands_[1] << "\nP1 Right P1 Left\n";
-    os << std::endl;
+    // os << "\nplayer_: " << player_ << "\tlvl: "<< kill_num_ << "\nP2 Right P2 Left\n   " << hands_[2] << "         " << hands_[3] << "\n\n   " << hands_[0] << "         " << hands_[1] << "\nP1 Right P1 Left\n";
+    // os << std::endl;
+
+    if (hands_[2] == 0 && hands_[3] == 0) {
+        win_stats[0] = win_stats[0] + 1;
+    } else if (hands_[0] == 0 && hands_[1] == 0) {
+        win_stats[1] = win_stats[1] + 1;
+    }
 
     for(const auto& branch : branches_) {
         branch.dump(std::cout);
     }
 }
 
+void Node::printWinStats() {
+    std::cout << "\nPlayer 1 Wins: " << win_stats[0] << std::endl;
+    std::cout << "\nPlayer 2 Wins: " << win_stats[1] << std::endl;
+
+}
+
 void Node::tester() {
 
-    auto pair_iter = s_combo_lookup.equal_range(3);
-    for (auto i = pair_iter.first; i != pair_iter.second; ++i) {
-        std::cout << i->first << ": {"  << i->second[0] << ", " << i->second[1] << "}" << std::endl;
-    }
+    // auto pair_iter = s_combo_lookup.equal_range(3);
+    // for (auto i = pair_iter.first; i != pair_iter.second; ++i) {
+    //     std::cout << i->first << ": {"  << i->second[0] << ", " << i->second[1] << "}" << std::endl;
+    // }
 
-    pair_iter = s_combo_lookup.equal_range(4);
-    for (auto i = pair_iter.first; i != pair_iter.second; ++i) {
-        std::cout << i->first << ": {"  << i->second[0] << ", " << i->second[1] << "}" << std::endl;
-    }
+    // pair_iter = s_combo_lookup.equal_range(4);
+    // for (auto i = pair_iter.first; i != pair_iter.second; ++i) {
+    //     std::cout << i->first << ": {"  << i->second[0] << ", " << i->second[1] << "}" << std::endl;
+    // }
 
 }
 
@@ -102,7 +133,7 @@ void Node::combineHands() {
         auto pair_iter = s_combo_lookup.equal_range(sum);
         for (auto i = pair_iter.first; i != pair_iter.second; ++i) {
 
-            std::cout << i->first << ": {"  << i->second[0] << ", " << i->second[1] << "}" << std::endl;
+            // std::cout << i->first << ": {"  << i->second[0] << ", " << i->second[1] << "}" << std::endl;
             // std::cout << "Parent: " << parent_ << "\n" << std::endl;
             if (i->second[0] != hands_[ix+0] && i->second[1] != hands_[ix+1]) {
                 hands[ix+0] = i->second[0];
@@ -113,22 +144,58 @@ void Node::combineHands() {
         }
     }
 }
+
+void Node::addOpponent() {
+    int ix = (1 == player_) ? 0 : 2;
+    // Opponent hands finder
+    int opp = (1 == player_) ? 2 : 0;
+    std::vector<int> hands = hands_;
+
+    // Do right hand always if possible
+    if (0 != hands_[ix+0]) {
+        if (0 != hands_[opp+0]) {
+            hands[opp+0] = hands_[ix+0] + hands_[opp+0];
+            branches_.push_back(std::move(Node(hands, (player_+1) % 2, this, kill_num_+1)));
+        }
+        if (0 != hands_[opp+1]) {
+            hands[opp+1] = hands_[ix+0] + hands_[opp+1];
+            branches_.push_back(std::move(Node(hands, (player_+1) % 2, this, kill_num_+1)));
+        }
+    }
+
+    if (0 != hands_[ix+1] && hands_[ix+0] != hands_[ix+1]) {
+        // Do left hand only if it isn't 0 and isn't equal to the right hand
+        if (0 != hands_[opp+0]) {
+            hands[opp+0] = hands_[ix+1] + hands_[opp+0];
+            branches_.push_back(std::move(Node(hands, (player_+1) % 2, this, kill_num_+1)));
+        }
+        if (0 != hands_[opp+1]) {
+            hands[opp+1] = hands_[ix+1] + hands_[opp+1];
+            branches_.push_back(std::move(Node(hands, (player_+1) % 2, this, kill_num_+1)));
+        }
+    }
+}
+
 void Node::genScenarios() {
     combineHands();
+    addOpponent();
 
+}
+
+int Node::winner() {
+    if (hands_[2] == 0 && hands_[3] == 0) {
+        std::cout << "\nPlayer 1 Wins" << std::endl;
+        return 0;
+    } else if (hands_[0] == 0 && hands_[1] == 0) {
+        std::cout << "\nPlayer 2 Wins" << std::endl;
+        return 1;
+    } else {
+        // No winner yet
+        return -1;
+    }
 }
 
 /*
-
-int Node::winner() {
-    if (p2r_ == 0 && p2l_ == 0) {
-        return 1;
-    } else if (p1r_ == 0 && p1l_ == 0) {
-        return 2;
-    } else {
-        return 0;
-    }
-}
 
 bool Node::checkMatching(Node& node) {
     if (node.p1r_ == p1r_ &&

@@ -24,6 +24,9 @@ public:
     void autoAdd(int, int, int, int, int, Node*, int);
 
     void tester();
+    int winner();
+
+    void printWinStats();
 
 
 private:
@@ -35,9 +38,9 @@ private:
     std::list <Node> branches_;
 
     // void fillBranches();
-
     void genScenarios();
     void combineHands();
+    void addOpponent();
 
 public:
     static const std::multimap<int, std::vector<int> > s_combo_lookup;
